@@ -109,14 +109,26 @@ install_XrayR() {
 	cd /usr/local/XrayR/
 
     if  [ $# == 0 ] ;then
-        # 默认安装 v0.9.2（有完整编译好的文件）
-        last_version="v0.9.2"
-        echo -e "开始安装 XrayR ${last_version}"
+        # 获取最新的 release
+        last_version=$(curl -Ls "https://api.github.com/repos/leaderen/wyx2685-XrayR/releases" | grep '"tag_name":' | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
+        if [[ ! -n "$last_version" ]]; then
+            echo -e "${red}检测 XrayR 版本失败，可能是超出 Github API 限制，请稍后再试，或手动指定 XrayR 版本安装${plain}"
+            echo -e "${yellow}提示：可以手动指定版本安装，例如：bash install.sh v0.9.2${plain}"
+            exit 1
+        fi
+        echo -e "检测到 XrayR 最新版本：${last_version}，开始安装"
         
+        # 尝试下载最新版本
         wget -q -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip https://github.com/leaderen/wyx2685-XrayR/releases/download/${last_version}/XrayR-linux-${arch}.zip
         if [[ $? -ne 0 ]]; then
-            echo -e "${red}下载 XrayR ${last_version} 失败，请确保你的服务器能够下载 Github 的文件${plain}"
-            exit 1
+            echo -e "${yellow}${last_version} 下载失败，尝试 v0.9.2...${plain}"
+            # 如果最新版本下载失败，尝试 v0.9.2
+            last_version="v0.9.2"
+            wget -q -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip https://github.com/leaderen/wyx2685-XrayR/releases/download/${last_version}/XrayR-linux-${arch}.zip
+            if [[ $? -ne 0 ]]; then
+                echo -e "${red}下载 XrayR 失败，请确保你的服务器能够下载 Github 的文件${plain}"
+                exit 1
+            fi
         fi
     else
         if [[ $1 == v* ]]; then
@@ -142,6 +154,7 @@ install_XrayR() {
     wget -q -N --no-check-certificate -O /etc/systemd/system/XrayR.service ${file}
     systemctl daemon-reload
     systemctl stop XrayR
+    systemctl unmask XrayR 2>/dev/null || true
     systemctl enable XrayR
     echo -e "${green}XrayR ${last_version}${plain} 安装完成，已设置开机自启"
     cp geoip.dat /etc/XrayR/
