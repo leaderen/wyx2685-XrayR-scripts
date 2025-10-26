@@ -12,9 +12,11 @@ Find the source code here: [XrayR-project/XrayR](https://github.com/XrayR-projec
 # 一键安装
 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/cmz0228/wyx2685-XrayR-release/master/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/leaderen/wyx2685-XrayR-scripts/refs/heads/master/install.sh)
 ```
 # Docker 安装
 
 暂不支持
 
+🌈 **欢迎加入我的频道 → [@jichangbiji](https://t.me/jichangbiji)**  
+每天分享最新的机场资讯与工具教程 💡
