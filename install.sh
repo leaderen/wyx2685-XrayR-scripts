@@ -117,8 +117,31 @@ install_XrayR() {
             exit 1
         fi
         echo -e "检测到 XrayR 最新版本：${last_version}，开始安装"
-        wget -q -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip https://github.com/leaderen/wyx2685-XrayR/releases/download/${last_version}/XrayR-linux-${arch}.zip
-        if [[ $? -ne 0 ]]; then
+        
+        # 检查并重试逻辑：如果最新版本下载失败，尝试 v0.9.2
+        download_success=0
+        if [[ "$last_version" == "v0.9.2" ]]; then
+            versions_to_try=("${last_version}")
+        else
+            versions_to_try=("${last_version}" "v0.9.2")
+        fi
+        
+        for try_version in "${versions_to_try[@]}"; do
+            echo -e "尝试下载 ${try_version}..."
+            wget -q -N --no-check-certificate -O /usr/local/XrayR/XrayR-linux.zip https://github.com/leaderen/wyx2685-XrayR/releases/download/${try_version}/XrayR-linux-${arch}.zip
+            if [[ $? -eq 0 ]]; then
+                last_version=${try_version}
+                download_success=1
+                echo -e "${green}成功下载 ${try_version}${plain}"
+                break
+            else
+                if [[ "${try_version}" != "v0.9.2" ]]; then
+                    echo -e "${yellow}${try_version} 下载失败，尝试 v0.9.2...${plain}"
+                fi
+            fi
+        done
+        
+        if [[ $download_success -eq 0 ]]; then
             echo -e "${red}下载 XrayR 失败，请确保你的服务器能够下载 Github 的文件${plain}"
             exit 1
         fi
