@@ -109,11 +109,11 @@ install_XrayR() {
 	cd /usr/local/XrayR/
 
     if  [ $# == 0 ] ;then
-        # 尝试获取最新 tag（因为仓库可能只有 tags 没有 releases）
-        last_version=$(curl -Ls "https://api.github.com/repos/leaderen/wyx2685-XrayR/tags" | grep '"name":' | head -1 | sed -E 's/.*"([^"]+)".*/\1/')
+        # 获取最新 release
+        last_version=$(curl -Ls "https://api.github.com/repos/leaderen/wyx2685-XrayR/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
         if [[ ! -n "$last_version" ]]; then
             echo -e "${red}检测 XrayR 版本失败，可能是超出 Github API 限制，请稍后再试，或手动指定 XrayR 版本安装${plain}"
-            echo -e "${yellow}提示：可以手动指定版本安装，例如：bash install.sh v0.9.3${plain}"
+            echo -e "${yellow}提示：可以手动指定版本安装，例如：bash install.sh v0.9.2${plain}"
             exit 1
         fi
         echo -e "检测到 XrayR 最新版本：${last_version}，开始安装"
